@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Yushe Bites</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="app">
+    <header class="topbar">
+      <h1 class="topbar__title">QuickOrder</h1>
+      <span class="topbar__sub" id="categoryTitle">All</span>
+    </header>
+
+    <div class="layout">
+      <aside class="sidebar" aria-label="Categories">
+        <nav class="sidebar__nav" id="categoryList"></nav>
+      </aside>
+
+      <main class="content">
+        <div class="product-grid" id="productGrid"></div>
+      </main>
+    </div>
+
+    <button class="cart-bar hidden" id="cartBar" type="button">
+      <span class="cart-bar__count" id="cartCount">0</span>
+      <span class="cart-bar__label">View order</span>
+      <span class="cart-bar__total" id="cartBarTotal">₱0.00</span>
+    </button>
+  </div>
+
+  <!-- Cart sheet -->
+  <div class="modal hidden" id="cartModal">
+    <div class="sheet">
+      <div class="sheet__head">
+        <h2>Your Order</h2>
+        <button class="icon-btn" type="button" data-close="cartModal" aria-label="Close">✕</button>
+      </div>
+      <ul class="cart-list" id="cartList"></ul>
+      <div class="sheet__foot">
+        <div class="total-row"><span>Total</span><strong id="cartTotal">₱0.00</strong></div>
+        <button class="btn btn--primary" type="button" id="checkoutBtn">Checkout</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Payment sheet -->
+  <div class="modal hidden" id="paymentModal">
+    <div class="sheet">
+      <div class="sheet__head">
+        <h2>Payment Method</h2>
+        <button class="icon-btn" type="button" data-close="paymentModal" aria-label="Close">✕</button>
+      </div>
+      <p class="muted">How would you like to pay?</p>
+      <div class="pay-options" id="payOptions">
+        <button class="pay-option" type="button" data-method="CASH">
+          <span class="pay-option__icon">💵</span>
+          <span class="pay-option__text"><strong>Cash</strong><small>Pay when your order is served</small></span>
+        </button>
+        <button class="pay-option" type="button" data-method="E-WALLET">
+          <span class="pay-option__icon">📱</span>
+          <span class="pay-option__text"><strong>E-Wallet</strong><small>Pay with your mobile wallet</small></span>
+        </button>
+      </div>
+      <div class="total-row"><span>Total to pay</span><strong id="payTotal">₱0.00</strong></div>
+      <button class="btn btn--primary" type="button" id="placeOrderBtn" disabled>Place Order</button>
+    </div>
+  </div>
+
+  <!-- Receipt sheet -->
+  <div class="modal hidden" id="receiptModal">
+    <div class="sheet">
+      <div class="receipt__check">✓</div>
+      <h2 class="center">Order Placed!</h2>
+      <p class="muted center">Show this order ID to the cashier</p>
+      <div class="order-id" id="orderId">ORD-0000</div>
+      <ul class="receipt-list" id="receiptList"></ul>
+      <div class="total-row"><span>Payment</span><strong id="receiptMethod">-</strong></div>
+      <div class="total-row"><span>Total</span><strong id="receiptTotal">₱0.00</strong></div>
+      <p class="muted center" id="receiptNote"></p>
+      <button class="btn btn--primary" type="button" id="newOrderBtn">New Order</button>
+    </div>
+  </div>
+
+  <div class="toast hidden" id="toast"></div>
+
+  <script src="config.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
+

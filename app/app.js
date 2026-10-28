@@ -3,7 +3,7 @@
 
   var CURRENCY = "₱";
   // URL of your Express API (change this when you deploy)
-  var API_URL = "http://localhost:5000";
+  var API_URL = (window.APP_CONFIG && window.APP_CONFIG.API_URL) || "http://localhost:5000";
 
   var categories = [
     { id: "all", name: "All", icon: "🍽️" },

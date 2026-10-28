@@ -1,11 +1,12 @@
 import { Server } from "socket.io";
 import jwt from "jsonwebtoken";
+import { allowedOrigins } from "./config.js";
 
 let io = null;
 
 // Call once from index.js with the HTTP server
 export const initSocket = (httpServer) => {
-    io = new Server(httpServer, { cors: { origin: "*" } });
+    io = new Server(httpServer, { cors: { origin: allowedOrigins } });
 
     // Only logged-in dashboard users (valid JWT) may listen for orders
     io.use((socket, next) => {

@@ -6,13 +6,15 @@ import authRoutes from './routes/auth.js';
 import categoryRoutes from './routes/category.js';
 import orderRoutes from './routes/order.js';
 import { initSocket } from './socket.js';
+import { allowedOrigins } from './config.js';
 
 const app = express();
 app.use(cors({
-    origin: '*',
+    origin: allowedOrigins,
     credentials: true
 }));
 app.use(express.json());
+app.get('/api/health', (req, res) => res.json({ ok: true }));
 app.use('/api/auth', authRoutes);
 app.use('/api/category', categoryRoutes);
 app.use('/api/order', orderRoutes);

@@ -1,8 +1,9 @@
+import { API_URL } from "../config";
 import axios from "axios";
 import React, { useEffect, useState } from "react";
 import { io } from "socket.io-client";
 
-const API = "http://localhost:5000";
+const API = API_URL;
 const STATUSES = ["pending", "preparing", "ready", "completed", "cancelled"];
 
 const statusColor = {
