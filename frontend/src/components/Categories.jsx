@@ -1,3 +1,4 @@
+import { API_URL } from "../config";
 import axios from "axios";
 import React, { useEffect, useState } from "react";
 
@@ -11,7 +12,7 @@ const Categories = () => {
     // Isolated fetch function so it can be called on mount AND after form submissions
     const fetchCategories = async () => {
         try {
-            const response = await axios.get("http://localhost:5000/api/category", {
+            const response = await axios.get(`${API_URL}/api/category`, {
                 headers: {
                     Authorization: `Bearer ${localStorage.getItem("pos-token")}`,
                 },
@@ -33,7 +34,7 @@ const Categories = () => {
         if (editCategory) {
             try {
                 const response = await axios.put(
-                    `http://localhost:5000/api/category/${editCategory}`,
+                    `${API_URL}/api/category/${editCategory}`,
                     { categoryName, categoryDescription },
                     {
                         headers: {
@@ -57,7 +58,7 @@ const Categories = () => {
         } else {
             try {
                 const response = await axios.post(
-                    "http://localhost:5000/api/category/add",
+                    `${API_URL}/api/category/add`,
                     { categoryName, categoryDescription },
                     {
                         headers: {
@@ -87,7 +88,7 @@ const Categories = () => {
         if (confirmDelete) {
             try {
                 const response = await axios.delete(
-                    `http://localhost:5000/api/category/${id}`,
+                    `${API_URL}/api/category/${id}`,
                     {
                         headers: {
                             Authorization: `Bearer ${localStorage.getItem("pos-token")}`,
