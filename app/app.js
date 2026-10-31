@@ -2,6 +2,8 @@
   "use strict";
 
   var CURRENCY = "₱";
+  // URL of your Express API (change this when you deploy)
+  var API_URL = (window.APP_CONFIG && window.APP_CONFIG.API_URL) || "http://localhost:5000";
 
   var categories = [
     { id: "all", name: "All", icon: "🍽️" },
@@ -168,16 +170,52 @@
     showModal("paymentModal");
   }
 
-  function generateOrderId() {
-    var n = Math.floor(1000 + Math.random() * 9000);
-    return "ORD-" + n;
+  function sendOrderToServer() {
+    var payload = {
+      paymentMethod: state.paymentMethod,
+      items: cartItems().map(function (it) {
+        return {
+          productId: it.product.id,
+          name: it.product.name,
+          price: it.product.price,
+          qty: it.qty
+        };
+      })
+    };
+
+    return fetch(API_URL + "/api/order", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    }).then(function (res) {
+      if (!res.ok) throw new Error("Order failed");
+      return res.json();
+    });
   }
 
   function placeOrder() {
     if (!state.paymentMethod) return;
 
+    var btn = $("placeOrderBtn");
+    btn.disabled = true;
+    btn.textContent = "Sending...";
+
+    sendOrderToServer()
+      .then(function (data) {
+        showReceipt(data.order.orderId);
+      })
+      .catch(function () {
+        toast("Could not send order. Check your connection and try again.");
+      })
+      .then(function () {
+        btn.disabled = false;
+        btn.textContent = "Place Order";
+      });
+  }
+
+  function showReceipt(orderId) {
     var items = cartItems();
-    $("orderId").textContent = generateOrderId();
+    $("orderId").textContent = orderId;
     $("receiptList").innerHTML = items.map(function (it) {
       return '<li class="receipt-item"><span>' + it.qty + '× ' + it.product.name +
         '</span><span>' + money(it.product.price * it.qty) + '</span></li>';

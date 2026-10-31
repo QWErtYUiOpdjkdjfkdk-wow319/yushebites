@@ -6,6 +6,7 @@ import ProtectedRoutes from './utils/ProtectedRoutes'
 import Dashboard from './pages/Dashboard';
 import Categories from './components/Categories';
 import Logout from './components/Logout'
+import Orders from './components/Orders';
 
 
 function App() {
@@ -41,7 +42,7 @@ function App() {
           />
           <Route
             path="orders"
-            element={<h1>Orders</h1>}
+            element={<Orders />}
           />
           <Route
             path="users"
