@@ -6,7 +6,7 @@ const Sidebar = () => {
     const menuItems = [
         { name: "Dashboard", path: "/admin-dashboard", icon: <FaHome />, isParent: true },
         { name: "Categories", path: "/admin-dashboard/categories", icon: <FaTable />, isParent: false },
-        { name: "Products", path: "/admin-dashboard/products", icon: <FaBox />, isParent: false },
+        { name: "Inventory", path: "/admin-dashboard/inventory", icon: <FaBox />, isParent: false },
         { name: "Suppliers", path: "/admin-dashboard/suppliers", icon: <FaTruck />, isParent: false },
         { name: "Orders", path: "/admin-dashboard/orders", icon: <FaShoppingCart />, isParent: false },
         { name: "Users", path: "/admin-dashboard/users", icon: <FaUsers />, isParent: false },
