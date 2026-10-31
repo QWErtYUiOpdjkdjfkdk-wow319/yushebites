@@ -5,6 +5,7 @@ import Login from './pages/Login'
 import ProtectedRoutes from './utils/ProtectedRoutes'
 import Dashboard from './pages/Dashboard';
 import Categories from './components/Categories';
+import Logout from './components/Logout'
 
 
 function App() {
@@ -31,8 +32,8 @@ function App() {
             element={<Categories />}
           />
           <Route
-            path="products"
-            element={<h1>Products</h1>}
+            path="inventory"
+            element={<Inventory />}
           />
           <Route
             path="suppliers"
@@ -49,6 +50,10 @@ function App() {
           <Route
             path="profile"
             element={<h1>Profile</h1>}
+          />
+          <Route
+            path="logout"
+            element={<Logout />}
           />
         </Route>
         <Route
