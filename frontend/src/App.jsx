@@ -7,6 +7,7 @@ import Dashboard from './pages/Dashboard';
 import Categories from './components/Categories';
 import Logout from './components/Logout'
 import Orders from './components/Orders';
+import Summary from './components/Summary';
 
 
 function App() {
@@ -26,7 +27,7 @@ function App() {
         >
           <Route
             index
-            element={<h1>Summary of dashboard</h1>}
+            element={<Summary />}
           />
           <Route
             path="categories"
@@ -59,7 +60,7 @@ function App() {
         </Route>
         <Route
           path="/employee/dashboard"
-          element={<h1>customer dashboard</h1>}
+          element={<Dashboard />}
         />
 
 

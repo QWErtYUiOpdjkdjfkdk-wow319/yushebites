@@ -8,6 +8,7 @@ import inventoryRoutes from './routes/inventory.js';
 import orderRoutes from './routes/order.js';
 import { initSocket } from './socket.js';
 import { allowedOrigins } from './config.js';
+import dashboardRouter from './routes/dashboard.js'
 
 const app = express();
 app.use(cors({
@@ -20,6 +21,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/category', categoryRoutes);
 app.use('/api/inventory', inventoryRoutes);
 app.use('/api/order', orderRoutes);
+app.use('/api/dashboard', dashboardRouter);
 
 // Socket.IO needs a plain HTTP server wrapped around Express
 const server = http.createServer(app);
