@@ -26,7 +26,10 @@ const Summary = () => {
             });
             setDashboardData(response.data.dashboardData);
         } catch (error) {
-            alert(error.response?.data?.message || error.message);
+            // A 401 is handled globally (redirect to login), so don't show an alert for it
+            if (error.response?.status !== 401) {
+                alert(error.response?.data?.message || error.message);
+            }
         }finally {
             setLoading(false);
         }
