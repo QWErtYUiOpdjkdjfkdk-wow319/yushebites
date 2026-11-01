@@ -4,7 +4,7 @@ import Inventory from '../models/Inventory.js';
 
 const addProduct = async (req, res) => {
     try {
-        const { name, description, price, stock, categoryId, supplierId } = req.body;
+        const { name, description, price, stock, categoryId } = req.body;
 
         const newInventory = new Inventory({
             name,
@@ -12,10 +12,9 @@ const addProduct = async (req, res) => {
             price,
             stock,
             categoryId,
-            supplierId
         });
 
-        await newProduct.save();
+        await newInventory.save();
         return res.status(201).json({ success: true, message: 'Product added successfully' })
     } catch (error) {
         console.error('Error adding product', error);
@@ -34,8 +33,8 @@ const getProducts = async (req, res) => {
             categories
         });
     } catch (error) {
-        //     console.error('Error fetching data:', error);
-        //     return res.status(500).json({ success: false, message: 'Server error when fetching suppliers' });
+        console.error('Error fetching products:', error);
+        return res.status(500).json({ success: false, message: 'Server error when fetching products' });
     }
 }
 

@@ -1,4 +1,5 @@
 import axios from "axios";
+import { API_URL } from "../config";
 import React from "react";
 import { useEffect } from "react";
 import { useState } from "react";
@@ -18,14 +19,14 @@ const Summary = () => {
     const fetchDashboardData = async () => {
         try {
             setLoading(true);
-            const response = await axios.get('http://localhost:5000/api/dashboard', {
+            const response = await axios.get(`${API_URL}/api/dashboard`, {
                 headers: {
                     Authorization: `Bearer ${localStorage.getItem('pos-token')}`
                 }
             });
             setDashboardData(response.data.dashboardData);
         } catch (error) {
-            alert(error.message);
+            alert(error.response?.data?.message || error.message);
         }finally {
             setLoading(false);
         }
@@ -41,24 +42,24 @@ const Summary = () => {
 
     return (
         <div className="p-5">
-            <h2 className='text-3x1 font-bold'>Dashboard</h2>
+            <h2 className='text-3xl font-bold'>Dashboard</h2>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 my-6">
                 <div className="bg-blue-500 text-white p-4 rounded-lg shadow-md flex flex-col items-center justify-center">
                     <p className="text-lg font-semibold">Total Products</p>
-                    <p className="text-2x1 font-bold">{dashboardData.totalProducts}</p>
+                    <p className="text-2xl font-bold">{dashboardData.totalProducts}</p>
                 </div>
                 <div className="bg-green-500 text-white p-4 rounded-lg shadow-md flex flex-col items-center justify-center">
                     <p className="text-lg font-semibold">Total Stock</p>
-                    <p className="text-2x1 font-bold">{dashboardData.totalStock}</p>
+                    <p className="text-2xl font-bold">{dashboardData.totalStock}</p>
                 </div>
                 <div className="bg-yellow-500 text-white p-4 rounded-lg shadow-md flex flex-col items-center justify-center">
                     <p className="text-lg font-semibold">Orders Today</p>
-                    <p className="text-2x1 font-bold">{dashboardData.ordersToday}</p>
+                    <p className="text-2xl font-bold">{dashboardData.ordersToday}</p>
                 </div>
                 <div className="bg-purple-500 text-white p-4 rounded-lg shadow-md flex flex-col items-center justify-center">
                     <p className="text-lg font-semibold">Revenue</p>
-                    <p className="text-2x1 font-bold">₱{dashboardData.revenue}</p>
+                    <p className="text-2xl font-bold">₱{Number(dashboardData.revenue).toFixed(2)}</p>
                 </div>
             </div>
 
@@ -72,7 +73,7 @@ const Summary = () => {
                             {dashboardData.outOfStock.map((inventory, index) => (
                                 <li key={index} className="text-gray-600">
                                     {inventory.name}{" "}
-                                    <span className="text-gray-400">({inventory.category.name})</span>
+                                    <span className="text-gray-400">({inventory.categoryId?.categoryName ?? "-"})</span>
                                 </li>
                             ))}
                         </ul>
@@ -103,7 +104,7 @@ const Summary = () => {
                             {dashboardData.lowStock.map((inventory, index) => (
                                 <li key={index} className="text-gray-600">
                                     <strong>{inventory.name}</strong> - <span className="text-red-500">{inventory.stock} left {" "}</span>
-                                    <span className="text-gray-400">({inventory.category.name})</span>
+                                    <span className="text-gray-400">({inventory.categoryId?.categoryName ?? "-"})</span>
                                 </li>
                             ))}
                         </ul>

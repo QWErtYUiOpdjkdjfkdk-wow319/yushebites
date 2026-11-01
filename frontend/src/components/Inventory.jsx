@@ -1,4 +1,5 @@
 import axios from "axios";
+import { API_URL } from "../config";
 import React, { useEffect, useState } from "react";
 
 const Inventory = () => {
@@ -19,7 +20,7 @@ const Inventory = () => {
 
     const fetchProducts = async () => {
         try {
-            const response = await axios.get("http://localhost:5000/api/inventory", {
+            const response = await axios.get(`${API_URL}/api/inventory`, {
                 headers: {
                     Authorization: `Bearer ${localStorage.getItem("pos-token")}`,
                 },
@@ -58,7 +59,7 @@ const Inventory = () => {
             description: inventory.description,
             price: inventory.price,
             stock: inventory.stock,
-            categoryId: inventory.categoryId._id,
+            categoryId: inventory.categoryId?._id ?? "",
             // supplierId: inventory.supplierId._id,
         })
     };
@@ -69,7 +70,7 @@ const Inventory = () => {
         if (confirmDelete) {
             try {
                 const response = await axios.delete(
-                    `http://localhost:5000/api/inventory/${id}`,
+                    `${API_URL}/api/inventory/${id}`,
                     {
                         headers: {
                             Authorization: `Bearer ${localStorage.getItem("pos-token")}`,
@@ -108,7 +109,7 @@ const Inventory = () => {
         if (editInventory) {
             try {
                 const response = await axios.put(
-                    `http://localhost:5000/api/inventory/${editInventory}`,
+                    `${API_URL}/api/inventory/${editInventory}`,
                     formData,
                     {
                         headers: {
@@ -145,7 +146,7 @@ const Inventory = () => {
         }
         try {
             const response = await axios.post(
-                "http://localhost:5000/api/products/add",
+                `${API_URL}/api/inventory`,
                 formData,
                 {
                     headers: {
@@ -216,7 +217,7 @@ const Inventory = () => {
                             <tr key={inventory._id}>
                                 <td className="border border-gray-300 p-2">{index + 1}</td>
                                 <td className="border border-gray-300 p-2">{inventory.name}</td>
-                                <td className="border border-gray-300 p-2">{inventory.categoryId.categoryName}</td>
+                                <td className="border border-gray-300 p-2">{inventory.categoryId?.categoryName ?? "-"}</td>
                                 <td className="border border-gray-300 p-2">
                                     {/* {inventory.supplierId.name} */}
                                 </td>

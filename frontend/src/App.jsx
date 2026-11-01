@@ -8,6 +8,7 @@ import Categories from './components/Categories';
 import Logout from './components/Logout'
 import Orders from './components/Orders';
 import Summary from './components/Summary';
+import Inventory from './components/Inventory';
 
 
 function App() {
