@@ -2,45 +2,33 @@
   "use strict";
 
   var CURRENCY = "₱";
-  // URL of your Express API (change this when you deploy)
+  // URL of your Express API: set it in config.js
   var API_URL = (window.APP_CONFIG && window.APP_CONFIG.API_URL) || "http://localhost:5000";
+  var REFRESH_MS = 30000;          // re-check stock every 30 seconds
+  var LOW_STOCK_NOTE = 5;          // show "Only N left" at or below this
+  var DEFAULT_EMOJI = "🍽️";
 
-  var categories = [
-    { id: "all", name: "All", icon: "🍽️" },
-    { id: "burgers", name: "Burgers", icon: "🍔" },
-    { id: "pizza", name: "Pizza", icon: "🍕" },
-    { id: "chicken", name: "Chicken", icon: "🍗" },
-    { id: "drinks", name: "Drinks", icon: "🥤" },
-    { id: "desserts", name: "Desserts", icon: "🍰" }
-  ];
-
-  var products = [
-    { id: 1, name: "Classic Burger", price: 120, category: "burgers", emoji: "🍔" },
-    { id: 2, name: "Cheese Burger", price: 140, category: "burgers", emoji: "🧀" },
-    { id: 3, name: "Double Patty", price: 190, category: "burgers", emoji: "🍔" },
-    { id: 4, name: "Pepperoni Pizza", price: 250, category: "pizza", emoji: "🍕" },
-    { id: 5, name: "Hawaiian Pizza", price: 240, category: "pizza", emoji: "🍍" },
-    { id: 6, name: "Fried Chicken", price: 130, category: "chicken", emoji: "🍗" },
-    { id: 7, name: "Chicken Wings", price: 160, category: "chicken", emoji: "🍖" },
-    { id: 8, name: "French Fries", price: 70, category: "chicken", emoji: "🍟" },
-    { id: 9, name: "Iced Tea", price: 50, category: "drinks", emoji: "🧋" },
-    { id: 10, name: "Cola", price: 45, category: "drinks", emoji: "🥤" },
-    { id: 11, name: "Orange Juice", price: 60, category: "drinks", emoji: "🍊" },
-    { id: 12, name: "Chocolate Cake", price: 95, category: "desserts", emoji: "🍰" },
-    { id: 13, name: "Ice Cream", price: 55, category: "desserts", emoji: "🍨" },
-    { id: 14, name: "Donut", price: 40, category: "desserts", emoji: "🍩" }
-  ];
+  // Filled from GET /api/menu (the Inventory page in the admin dashboard)
+  var categories = [];             // { id, name, icon }
+  var products = [];               // { id, name, description, price, stock, emoji, categoryId }
+  var menuStatus = "loading";      // loading | ready | error
 
   var state = {
     category: "all",
-    cart: {},          // productId -> quantity
+    cart: {},                      // productId -> quantity
     paymentMethod: null
   };
 
   // ---------- Helpers ----------
   function $(id) { return document.getElementById(id); }
 
-  function money(n) { return CURRENCY + n.toFixed(2); }
+  function money(n) { return CURRENCY + Number(n).toFixed(2); }
+
+  function esc(value) {
+    return String(value == null ? "" : value)
+      .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;").replace(/'/g, "&#39;");
+  }
 
   function findProduct(id) {
     for (var i = 0; i < products.length; i++) {
@@ -51,9 +39,8 @@
 
   function cartItems() {
     return Object.keys(state.cart).map(function (key) {
-      var p = findProduct(Number(key));
-      return { product: p, qty: state.cart[key] };
-    });
+      return { product: findProduct(key), qty: state.cart[key] };
+    }).filter(function (it) { return it.product; });
   }
 
   function cartTotal() {
@@ -66,6 +53,7 @@
     return cartItems().reduce(function (sum, it) { return sum + it.qty; }, 0);
   }
 
+  function isOpen(id) { return !$(id).classList.contains("hidden"); }
   function showModal(id) { $(id).classList.remove("hidden"); }
   function hideModal(id) { $(id).classList.add("hidden"); }
 
@@ -75,11 +63,93 @@
     el.textContent = msg;
     el.classList.remove("hidden");
     clearTimeout(toastTimer);
-    toastTimer = setTimeout(function () { el.classList.add("hidden"); }, 1800);
+    toastTimer = setTimeout(function () { el.classList.add("hidden"); }, 2600);
+  }
+
+  // ---------- Menu loading ----------
+  function buildCategories(list) {
+    var result = [{ id: "all", name: "All", icon: DEFAULT_EMOJI }];
+    list.forEach(function (c) {
+      var first = products.filter(function (p) { return p.categoryId === c.id && p.emoji; })[0];
+      result.push({ id: c.id, name: c.name, icon: first ? first.emoji : DEFAULT_EMOJI });
+    });
+    return result;
+  }
+
+  // Keep the cart valid after stock or products change on the server.
+  // Returns true if anything had to be reduced or removed.
+  function syncCartWithMenu() {
+    var changed = false;
+    Object.keys(state.cart).forEach(function (id) {
+      var p = findProduct(id);
+      if (!p || p.stock <= 0) {
+        delete state.cart[id];
+        changed = true;
+      } else if (state.cart[id] > p.stock) {
+        state.cart[id] = p.stock;
+        changed = true;
+      }
+    });
+    return changed;
+  }
+
+  // silent: no "Loading" screen. quiet: don't show the "stock changed" notice (a clearer message is already showing)
+  function loadMenu(silent, quiet) {
+    if (!silent && products.length === 0) {
+      menuStatus = "loading";
+      renderProducts();
+    }
+
+    return fetch(API_URL + "/api/menu", { cache: "no-store" })
+      .then(function (res) {
+        if (!res.ok) throw new Error("Menu request failed");
+        return res.json();
+      })
+      .then(function (data) {
+        products = (data.products || []).map(function (p) {
+          return {
+            id: String(p.id),
+            name: p.name,
+            description: p.description || "",
+            price: Number(p.price),
+            stock: Number(p.stock),
+            emoji: p.emoji || "",
+            categoryId: String(p.categoryId)
+          };
+        });
+        categories = buildCategories(data.categories || []);
+
+        var stillExists = categories.some(function (c) { return c.id === state.category; });
+        if (!stillExists) state.category = "all";
+
+        menuStatus = "ready";
+        var adjusted = syncCartWithMenu();
+
+        renderCategories();
+        renderProducts();
+        renderCartBar();
+        if (isOpen("cartModal")) renderCart();
+        if (adjusted && !quiet) toast("Some items in your order changed because stock updated.");
+      })
+      .catch(function () {
+        // A failed background refresh is ignored; keep showing the last menu
+        if (products.length === 0) {
+          menuStatus = "error";
+          renderCategories();
+          renderProducts();
+        }
+      });
   }
 
   function changeQty(id, delta) {
+    var p = findProduct(id);
+    if (!p) return;
+
     var next = (state.cart[id] || 0) + delta;
+    if (next > p.stock) {
+      toast(p.stock === 0 ? p.name + " is sold out." : "Only " + p.stock + " of " + p.name + " left.");
+      return;
+    }
     if (next <= 0) {
       delete state.cart[id];
     } else {
@@ -87,42 +157,73 @@
     }
     renderProducts();
     renderCartBar();
-    if (!$("cartModal").classList.contains("hidden")) renderCart();
+    if (isOpen("cartModal")) renderCart();
   }
 
   // ---------- Rendering ----------
   function renderCategories() {
-    var html = categories.map(function (c) {
-      var active = c.id === state.category ? " is-active" : "";
-      return '<button type="button" class="cat-btn' + active + '" data-category="' + c.id + '">' +
-        '<span class="cat-btn__icon">' + c.icon + '</span>' +
-        '<span>' + c.name + '</span></button>';
-    }).join("");
-    $("categoryList").innerHTML = html;
+    var list = categories.length ? categories : [{ id: "all", name: "All", icon: DEFAULT_EMOJI }];
 
-    var current = categories.filter(function (c) { return c.id === state.category; })[0];
+    $("categoryList").innerHTML = list.map(function (c) {
+      var active = c.id === state.category ? " is-active" : "";
+      return '<button type="button" class="cat-btn' + active + '" data-category="' + esc(c.id) + '">' +
+        '<span class="cat-btn__icon">' + esc(c.icon) + '</span>' +
+        '<span>' + esc(c.name) + '</span></button>';
+    }).join("");
+
+    var current = list.filter(function (c) { return c.id === state.category; })[0];
     $("categoryTitle").textContent = current ? current.name : "All";
   }
 
   function renderProducts() {
+    var grid = $("productGrid");
+
+    if (menuStatus === "loading") {
+      grid.innerHTML = '<p class="grid-message">Loading menu…</p>';
+      return;
+    }
+    if (menuStatus === "error") {
+      grid.innerHTML = '<div class="grid-message">' +
+        '<p>Could not load the menu. Check your connection.</p>' +
+        '<button type="button" class="btn btn--primary" data-action="retry">Try again</button></div>';
+      return;
+    }
+
     var list = products.filter(function (p) {
-      return state.category === "all" || p.category === state.category;
+      return state.category === "all" || p.categoryId === state.category;
     });
 
-    $("productGrid").innerHTML = list.map(function (p) {
-      var qty = state.cart[p.id] || 0;
-      var action = qty > 0
-        ? '<div class="stepper">' +
-            '<button type="button" data-action="dec" data-id="' + p.id + '">−</button>' +
-            '<span>' + qty + '</span>' +
-            '<button type="button" data-action="inc" data-id="' + p.id + '">+</button>' +
-          '</div>'
-        : '<button type="button" class="add-btn" data-action="inc" data-id="' + p.id + '">Add</button>';
+    if (list.length === 0) {
+      grid.innerHTML = '<p class="grid-message">No items available here yet.</p>';
+      return;
+    }
 
-      return '<article class="product">' +
-        '<div class="product__emoji">' + p.emoji + '</div>' +
-        '<div class="product__name">' + p.name + '</div>' +
+    grid.innerHTML = list.map(function (p) {
+      var qty = state.cart[p.id] || 0;
+      var soldOut = p.stock <= 0;
+      var action;
+
+      if (soldOut) {
+        action = '<button type="button" class="add-btn" disabled>Sold out</button>';
+      } else if (qty > 0) {
+        action = '<div class="stepper">' +
+            '<button type="button" data-action="dec" data-id="' + esc(p.id) + '">−</button>' +
+            '<span>' + qty + '</span>' +
+            '<button type="button" data-action="inc" data-id="' + esc(p.id) + '"' +
+              (qty >= p.stock ? " disabled" : "") + '>+</button>' +
+          '</div>';
+      } else {
+        action = '<button type="button" class="add-btn" data-action="inc" data-id="' + esc(p.id) + '">Add</button>';
+      }
+
+      var note = (!soldOut && p.stock <= LOW_STOCK_NOTE)
+        ? '<div class="product__stock">Only ' + p.stock + ' left</div>' : "";
+
+      return '<article class="product' + (soldOut ? " product--soldout" : "") + '" title="' + esc(p.description) + '">' +
+        '<div class="product__emoji">' + esc(p.emoji || DEFAULT_EMOJI) + '</div>' +
+        '<div class="product__name">' + esc(p.name) + '</div>' +
         '<div class="product__price">' + money(p.price) + '</div>' +
+        note +
         action +
       '</article>';
     }).join("");
@@ -144,15 +245,16 @@
     $("cartList").innerHTML = items.map(function (it) {
       var p = it.product;
       return '<li class="cart-item">' +
-        '<span class="cart-item__emoji">' + p.emoji + '</span>' +
+        '<span class="cart-item__emoji">' + esc(p.emoji || DEFAULT_EMOJI) + '</span>' +
         '<div class="cart-item__info">' +
-          '<div class="cart-item__name">' + p.name + '</div>' +
+          '<div class="cart-item__name">' + esc(p.name) + '</div>' +
           '<div class="cart-item__price">' + money(p.price) + ' each</div>' +
         '</div>' +
         '<div class="stepper">' +
-          '<button type="button" data-action="dec" data-id="' + p.id + '">−</button>' +
+          '<button type="button" data-action="dec" data-id="' + esc(p.id) + '">−</button>' +
           '<span>' + it.qty + '</span>' +
-          '<button type="button" data-action="inc" data-id="' + p.id + '">+</button>' +
+          '<button type="button" data-action="inc" data-id="' + esc(p.id) + '"' +
+            (it.qty >= p.stock ? " disabled" : "") + '>+</button>' +
         '</div>' +
       '</li>';
     }).join("");
@@ -170,16 +272,13 @@
     showModal("paymentModal");
   }
 
+  // Only product ids and quantities are sent. The server looks up the real prices
+  // and takes the stock off, so nothing here can be tampered with.
   function sendOrderToServer() {
     var payload = {
       paymentMethod: state.paymentMethod,
       items: cartItems().map(function (it) {
-        return {
-          productId: it.product.id,
-          name: it.product.name,
-          price: it.product.price,
-          qty: it.qty
-        };
+        return { productId: it.product.id, qty: it.qty };
       })
     };
 
@@ -188,8 +287,15 @@
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload)
     }).then(function (res) {
-      if (!res.ok) throw new Error("Order failed");
-      return res.json();
+      return res.json().catch(function () { return {}; }).then(function (body) {
+        if (!res.ok) {
+          var err = new Error(body.message || "Order failed");
+          err.code = body.code;
+          err.status = res.status;
+          throw err;
+        }
+        return body;
+      });
     });
   }
 
@@ -202,30 +308,41 @@
 
     sendOrderToServer()
       .then(function (data) {
-        showReceipt(data.order.orderId);
+        showReceipt(data.order);
+        loadMenu(true); // pick up the new stock levels
       })
-      .catch(function () {
+      .catch(function (err) {
+        if (err.code === "OUT_OF_STOCK" || err.status === 400) {
+          // Stock changed while the customer was ordering: show the reason, refresh, and go back to the cart
+          toast(err.message);
+          hideModal("paymentModal");
+          return loadMenu(true, true).then(function () {
+            if (cartCount() > 0) { renderCart(); showModal("cartModal"); }
+          });
+        }
         toast("Could not send order. Check your connection and try again.");
       })
       .then(function () {
-        btn.disabled = false;
+        btn.disabled = !state.paymentMethod;
         btn.textContent = "Place Order";
       });
   }
 
-  function showReceipt(orderId) {
-    var items = cartItems();
-    $("orderId").textContent = orderId;
-    $("receiptList").innerHTML = items.map(function (it) {
-      return '<li class="receipt-item"><span>' + it.qty + '× ' + it.product.name +
-        '</span><span>' + money(it.product.price * it.qty) + '</span></li>';
+  // The receipt shows exactly what the server saved (real names, prices and total)
+  function showReceipt(order) {
+    $("orderId").textContent = order.orderId;
+    $("receiptList").innerHTML = order.items.map(function (it) {
+      return '<li class="receipt-item"><span>' + it.qty + '× ' + esc(it.name) +
+        '</span><span>' + money(it.price * it.qty) + '</span></li>';
     }).join("");
-    $("receiptMethod").textContent = state.paymentMethod === "CASH" ? "Cash" : "E-Wallet";
-    $("receiptTotal").textContent = money(cartTotal());
-    $("receiptNote").textContent = state.paymentMethod === "CASH"
+    $("receiptMethod").textContent = order.paymentMethod === "CASH" ? "Cash" : "E-Wallet";
+    $("receiptTotal").textContent = money(order.total);
+    $("receiptNote").textContent = order.paymentMethod === "CASH"
       ? "Please pay at the counter."
       : "Please complete your e-wallet payment at the counter by scanning the QR code.";
 
+    state.cart = {};
+    renderCartBar();
     hideModal("paymentModal");
     showModal("receiptModal");
   }
@@ -252,11 +369,16 @@
     function qtyHandler(e) {
       var btn = e.target.closest("[data-action]");
       if (!btn) return;
-      var id = Number(btn.dataset.id);
-      if (btn.dataset.action === "inc") {
+      var action = btn.dataset.action;
+
+      if (action === "retry") { loadMenu(false); return; }
+
+      var id = btn.dataset.id;
+      if (action === "inc") {
+        var wasEmpty = !state.cart[id];
         changeQty(id, 1);
-        if (!state.cart[id] || state.cart[id] === 1) toast(findProduct(id).name + " added");
-      } else {
+        if (wasEmpty && state.cart[id]) toast(findProduct(id).name + " added");
+      } else if (action === "dec") {
         changeQty(id, -1);
       }
     }
@@ -291,6 +413,14 @@
         hideModal(e.target.id);
       }
     });
+
+    // Keep stock fresh: when the customer returns to the tab, and every 30 seconds
+    document.addEventListener("visibilitychange", function () {
+      if (!document.hidden) loadMenu(true);
+    });
+    setInterval(function () {
+      if (!document.hidden && !isOpen("paymentModal")) loadMenu(true);
+    }, REFRESH_MS);
   }
 
   // ---------- Init ----------
@@ -298,4 +428,5 @@
   renderProducts();
   renderCartBar();
   bindEvents();
+  loadMenu(false);
 })();

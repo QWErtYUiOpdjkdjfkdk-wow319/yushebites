@@ -2,7 +2,10 @@ import mongoose from "mongoose";
 
 const orderItemSchema = new mongoose.Schema(
     {
-        productId: { type: Number, required: true },
+        // New orders link to the Inventory product. Older orders only have the
+        // numeric productId from the original hard-coded menu, so both are optional.
+        product: { type: mongoose.Schema.Types.ObjectId, ref: "Inventory" },
+        productId: { type: Number },
         name: { type: String, required: true },
         price: { type: Number, required: true, min: 0 },
         qty: { type: Number, required: true, min: 1 },

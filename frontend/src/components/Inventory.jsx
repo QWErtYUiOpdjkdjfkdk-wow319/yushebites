@@ -15,6 +15,7 @@ const Inventory = () => {
         price: "",
         stock: "",
         categoryId: "",
+        emoji: "",
         // supplierId: "",
     });
 
@@ -60,6 +61,7 @@ const Inventory = () => {
             price: inventory.price,
             stock: inventory.stock,
             categoryId: inventory.categoryId?._id ?? "",
+            emoji: inventory.emoji ?? "",
             // supplierId: inventory.supplierId._id,
         })
     };
@@ -100,6 +102,7 @@ const Inventory = () => {
             price: "",
             stock: "",
             categoryId: "",
+        emoji: "",
         })
     }
 
@@ -128,6 +131,7 @@ const Inventory = () => {
                         price: "",
                         stock: "",
                         categoryId: "",
+        emoji: "",
                         //supplierId: "",
                     });
                 } else {
@@ -164,6 +168,7 @@ const Inventory = () => {
                     price: "",
                     stock: "",
                     categoryId: "",
+        emoji: "",
                     // supplierId: "",
                 })
             } else {
@@ -183,7 +188,7 @@ const Inventory = () => {
 
     return (
         <div className="w-full h-full flex flex-col gap-4 p-4">
-            <h1 className="text-2x1 font-bold">Inventory Management</h1>
+            <h1 className="text-2xl font-bold">Inventory Management</h1>
             <div className="flex justify-between items-center">
                 <input
                     type="text"
@@ -200,13 +205,12 @@ const Inventory = () => {
             </div>
 
             <div>
-                <table>
+                <table className="w-full bg-white">
                     <thead>
                         <tr>
                             <th className="border border-gray-300 p-2">Product ID</th>
                             <th className="border border-gray-300 p-2">Name</th>
                             <th className="border border-gray-300 p-2">Category</th>
-                            <th className="border border-gray-300 p-2">Supplier</th>
                             <th className="border border-gray-300 p-2">Price</th>
                             <th className="border border-gray-300 p-2">Stock</th>
                             <th className="border border-gray-300 p-2">Action</th>
@@ -216,11 +220,8 @@ const Inventory = () => {
                         {filteredInventory && filteredInventory.map((inventory, index) => (
                             <tr key={inventory._id}>
                                 <td className="border border-gray-300 p-2">{index + 1}</td>
-                                <td className="border border-gray-300 p-2">{inventory.name}</td>
+                                <td className="border border-gray-300 p-2">{inventory.emoji} {inventory.name}</td>
                                 <td className="border border-gray-300 p-2">{inventory.categoryId?.categoryName ?? "-"}</td>
-                                <td className="border border-gray-300 p-2">
-                                    {/* {inventory.supplierId.name} */}
-                                </td>
                                 <td className="border border-gray-300 p-2">
                                     {inventory.price}
                                 </td>
@@ -257,27 +258,29 @@ const Inventory = () => {
             </div>
 
             {openModal && (
-                <div className="fixed top-0 left-0 w-full bg-black/50 flex justify-center items-center">
-                    <div className="bg-white p-4 rounded shadow-md w-1/3 relative">
-                        <h1 className="text-xl font-bold">Add Product</h1>
+                <div className="fixed inset-0 z-50 bg-black/50 flex justify-center items-center p-4">
+                    <div className="bg-white p-6 rounded-lg shadow-md w-full max-w-md max-h-[90vh] overflow-y-auto relative">
+                        <h1 className="text-xl font-bold">{editInventory ? "Edit Product" : "Add Product"}</h1>
                         <button
                             className="absolute top-4 right-4 font-bold text-lg cursor-pointer"
                             onClick={closeModal}
                         >
                             X
                         </button>
-                        <form className="flex flex-col-gap-4 mt-4" onSubmit={handleSubmit}>
+                        <form className="flex flex-col gap-4 mt-4" onSubmit={handleSubmit}>
                             <input
                                 type="text"
                                 name="name"
                                 value={formData.name}
                                 onChange={handleChange}
                                 placeholder="Product Name"
+                                required
                                 className="border p-1 bg-white rounded px-4"
                             />
                             <input
                                 type="text"
                                 placeholder="Description"
+                                required
                                 name="description"
                                 value={formData.description}
                                 onChange={handleChange}
@@ -285,10 +288,13 @@ const Inventory = () => {
                             />
                             <input
                                 type="number"
+                                min="0"
+                                step="0.01"
                                 name="price"
                                 value={formData.price}
                                 onChange={handleChange}
                                 placeholder="Enter Price"
+                                required
                                 className="border p-1 bg-white rounded px-4"
                             />
                             <input
@@ -298,10 +304,20 @@ const Inventory = () => {
                                 value={formData.stock}
                                 onChange={handleChange}
                                 placeholder="Enter Stock"
+                                required
+                                className="border p-1 bg-white rounded px-4"
+                            />
+                            <input
+                                type="text"
+                                name="emoji"
+                                maxLength={4}
+                                value={formData.emoji}
+                                onChange={handleChange}
+                                placeholder="Emoji for the customer menu (optional), e.g. 🍔"
                                 className="border p-1 bg-white rounded px-4"
                             />
                             <div className="w-full border">
-                                <select name="category" className="w-full p-2"
+                                <select name="categoryId" required className="w-full p-2"
                                     onChange={handleChange} value={formData.categoryId}>
                                     <option value="">Select Category</option>
                                     {categories && categories.map((category) => (
@@ -311,18 +327,6 @@ const Inventory = () => {
                                     ))}
                                 </select>
                             </div>
-                            <div className="w-full border">
-                                <select name="supplier" className="w-full p-2"
-                                    onChange={handleChange} value={formData.supplierId}>
-                                    <option value="">Select Supplier</option>
-                                    {/* {suppliers && suppliers.map((supplier) => (
-                                        <option key={supplier._id} value={supplier._id}>
-                                            {supplier.name}
-                                        </option>
-                                    ))} */}
-                                </select>
-                            </div>
-
                             <div className="flex space-x-2">
                                 <button
                                     type="submit"
@@ -346,3 +350,6 @@ const Inventory = () => {
         </div>
     )
 }
+
+export default Inventory;
+

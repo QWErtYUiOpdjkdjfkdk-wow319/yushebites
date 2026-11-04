@@ -4,7 +4,7 @@ import Inventory from '../models/Inventory.js';
 
 const addProduct = async (req, res) => {
     try {
-        const { name, description, price, stock, categoryId } = req.body;
+        const { name, description, price, stock, categoryId, emoji } = req.body;
 
         const newInventory = new Inventory({
             name,
@@ -12,6 +12,7 @@ const addProduct = async (req, res) => {
             price,
             stock,
             categoryId,
+            emoji,
         });
 
         await newInventory.save();
@@ -41,7 +42,7 @@ const getProducts = async (req, res) => {
 const updateInventory = async (req, res) => {
     try {
         const { id } = req.params;
-        const { name, description, price, stock, categoryId, supplierId } = req.body;
+        const { name, description, price, stock, categoryId, emoji } = req.body;
 
         const updatedInventory = await Inventory.findByIdAndUpdate(id, {
             name,
@@ -49,8 +50,9 @@ const updateInventory = async (req, res) => {
             price,
             stock,
             categoryId,
+            emoji,
             //supplierId
-        }, { new: true });
+        }, { new: true, runValidators: true });
 
         if (!updatedInventory) {
             return res.status(404).json({ success: false, message: 'Product not found' });
