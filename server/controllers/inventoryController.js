@@ -1,6 +1,7 @@
 // import Supplier from '../models/Supplier.js';
 import Category from '../models/Category.js';
 import Inventory from '../models/Inventory.js';
+import mongoose from 'mongoose';
 
 const addProduct = async (req, res) => {
     try {
