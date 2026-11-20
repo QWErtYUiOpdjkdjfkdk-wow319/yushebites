@@ -1,9 +1,13 @@
 import axios from "axios";
 import { API_URL } from "../config";
 import React, { useEffect, useState } from "react";
+import StockScanner from "./StockScanner";
+import ProductQR from "./ProductQR";
 
 const Inventory = () => {
     const [openModal, setOpenModal] = useState(false);
+    const [scanOpen, setScanOpen] = useState(false);
+    const [qrProduct, setQrProduct] = useState(null);
     const [editInventory, setEditInventory] = useState(null);
     const [categories, setCategories] = useState([]);
     const [inventory, setInventory] = useState([]);
@@ -190,12 +194,20 @@ const Inventory = () => {
                     className="border p-1 bg-white rounded px-4"
                     onChange={handleSearch}
                 />
-                <button
-                    className="px-4 py-1.5 bg-blue-500 text-white rounded cursor-pointer"
-                    onClick={() => setOpenModal(true)}
-                >
-                    Add Product
-                </button>
+                <div className="flex gap-2">
+                    <button
+                        className="px-4 py-1.5 bg-green-600 text-white rounded cursor-pointer"
+                        onClick={() => setScanOpen(true)}
+                    >
+                        Scan QR
+                    </button>
+                    <button
+                        className="px-4 py-1.5 bg-blue-500 text-white rounded cursor-pointer"
+                        onClick={() => setOpenModal(true)}
+                    >
+                        Add Product
+                    </button>
+                </div>
             </div>
 
             <div>
@@ -232,6 +244,12 @@ const Inventory = () => {
                                 </td>
                                 <td className="border border-gray-300 p-2">
                                     <button
+                                        className="px-2 py-1 bg-gray-700 text-white rounded cursor-pointer mr-2"
+                                        onClick={() => setQrProduct(inventory)}
+                                    >
+                                        QR
+                                    </button>
+                                    <button
                                         className="px-2 py-1 bg-yellow-500 text-white rounded cursor-pointer mr-2"
                                         onClick={() => handleEdit(inventory)}
                                     >
@@ -250,6 +268,18 @@ const Inventory = () => {
                 </table>
                 {filteredInventory.length === 0 && <div>No records</div>}
             </div>
+
+                        {scanOpen && (
+                <StockScanner
+                    inventory={inventory}
+                    onUpdated={fetchProducts}
+                    onClose={() => setScanOpen(false)}
+                />
+            )}
+
+            {qrProduct && (
+                <ProductQR product={qrProduct} onClose={() => setQrProduct(null)} />
+            )}
 
             {openModal && (
                 <div className="fixed inset-0 z-50 bg-black/50 flex justify-center items-center p-4">
