@@ -5,7 +5,6 @@
   // URL of your Express API: set it in config.js
   var API_URL = (window.APP_CONFIG && window.APP_CONFIG.API_URL) || "http://localhost:5000";
   var REFRESH_MS = 30000;          // re-check stock every 30 seconds
-  var LOW_STOCK_NOTE = 5;          // show "Only N left" at or below this
   var DEFAULT_EMOJI = "🍽️";
 
   // Filled from GET /api/menu (the Inventory page in the admin dashboard)
@@ -216,14 +215,10 @@
         action = '<button type="button" class="add-btn" data-action="inc" data-id="' + esc(p.id) + '">Add</button>';
       }
 
-      var note = (!soldOut && p.stock <= LOW_STOCK_NOTE)
-        ? '<div class="product__stock">Only ' + p.stock + ' left</div>' : "";
-
       return '<article class="product' + (soldOut ? " product--soldout" : "") + '" title="' + esc(p.description) + '">' +
         '<div class="product__emoji">' + esc(p.emoji || DEFAULT_EMOJI) + '</div>' +
         '<div class="product__name">' + esc(p.name) + '</div>' +
         '<div class="product__price">' + money(p.price) + '</div>' +
-        note +
         action +
       '</article>';
     }).join("");
@@ -272,8 +267,7 @@
     showModal("paymentModal");
   }
 
-  // Only product ids and quantities are sent. The server looks up the real prices
-  // and takes the stock off, so nothing here can be tampered with.
+  // Only product ids and quantities are sent; the server looks up the real prices and takes the stock off
   function sendOrderToServer() {
     var payload = {
       paymentMethod: state.paymentMethod,
@@ -309,11 +303,11 @@
     sendOrderToServer()
       .then(function (data) {
         showReceipt(data.order);
-        loadMenu(true); // pick up the new stock levels
+        loadMenu(true); // new stock
       })
       .catch(function (err) {
         if (err.code === "OUT_OF_STOCK" || err.status === 400) {
-          // Stock changed while the customer was ordering: show the reason, refresh, and go back to the cart
+          // Stock changed while customer was ordering: show the reason, refresh, and go back to the cart
           toast(err.message);
           hideModal("paymentModal");
           return loadMenu(true, true).then(function () {
@@ -355,7 +349,7 @@
     renderCartBar();
   }
 
-  // ---------- Events ----------
+  // events
   function bindEvents() {
     $("categoryList").addEventListener("click", function (e) {
       var btn = e.target.closest("[data-category]");
@@ -414,7 +408,7 @@
       }
     });
 
-    // Keep stock fresh: when the customer returns to the tab, and every 30 seconds
+    // Keep stock fresh when the customer returns to the tab and every 30 seconds
     document.addEventListener("visibilitychange", function () {
       if (!document.hidden) loadMenu(true);
     });
@@ -423,7 +417,6 @@
     }, REFRESH_MS);
   }
 
-  // ---------- Init ----------
   renderCategories();
   renderProducts();
   renderCartBar();
