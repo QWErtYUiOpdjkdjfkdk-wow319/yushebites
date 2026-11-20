@@ -1,16 +1,13 @@
 import React from 'react'
 import { NavLink } from 'react-router-dom'
-import { FaBox, FaCog, FaHome, FaShoppingCart, FaSignOutAlt, FaTable, FaTruck, FaUsers } from "react-icons/fa"
+import { FaBox, FaHome, FaShoppingCart, FaSignOutAlt, FaTable} from "react-icons/fa"
 
 const Sidebar = () => {
     const menuItems = [
         { name: "Dashboard", path: "/admin-dashboard", icon: <FaHome />, isParent: true },
         { name: "Categories", path: "/admin-dashboard/categories", icon: <FaTable />, isParent: false },
         { name: "Inventory", path: "/admin-dashboard/inventory", icon: <FaBox />, isParent: false },
-        { name: "Suppliers", path: "/admin-dashboard/suppliers", icon: <FaTruck />, isParent: false },
         { name: "Orders", path: "/admin-dashboard/orders", icon: <FaShoppingCart />, isParent: false },
-        { name: "Users", path: "/admin-dashboard/users", icon: <FaUsers />, isParent: false },
-        { name: "Profile", path: "/admin-dashboard/profile", icon: <FaCog />, isParent: false },
         { name: "Logout", path: "/logout", icon: <FaSignOutAlt />, isParent: false }
     ]
 

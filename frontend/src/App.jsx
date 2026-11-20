@@ -39,20 +39,8 @@ function App() {
             element={<Inventory />}
           />
           <Route
-            path="suppliers"
-            element={<h1>Suppliers</h1>}
-          />
-          <Route
             path="orders"
             element={<Orders />}
-          />
-          <Route
-            path="users"
-            element={<h1>Users</h1>}
-          />
-          <Route
-            path="profile"
-            element={<h1>Profile</h1>}
           />
           <Route
             path="logout"

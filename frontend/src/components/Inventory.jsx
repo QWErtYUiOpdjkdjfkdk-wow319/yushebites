@@ -6,7 +6,6 @@ const Inventory = () => {
     const [openModal, setOpenModal] = useState(false);
     const [editInventory, setEditInventory] = useState(null);
     const [categories, setCategories] = useState([]);
-    // const [suppliers, setSuppliers] = useState([]);
     const [inventory, setInventory] = useState([]);
     const [filteredInventory, setFilteredInventory] = useState([]);
     const [formData, setFormData] = useState({
@@ -16,7 +15,6 @@ const Inventory = () => {
         stock: "",
         categoryId: "",
         emoji: "",
-        // supplierId: "",
     });
 
     const fetchProducts = async () => {
@@ -27,7 +25,6 @@ const Inventory = () => {
                 },
             });
             if (response.data.success) {
-                // setSuppliers(response.data.suppliers);
                 setCategories(response.data.categories);
                 setInventory(response.data.inventory);
                 setFilteredInventory(response.data.inventory);
@@ -62,7 +59,6 @@ const Inventory = () => {
             stock: inventory.stock,
             categoryId: inventory.categoryId?._id ?? "",
             emoji: inventory.emoji ?? "",
-            // supplierId: inventory.supplierId._id,
         })
     };
 
@@ -102,7 +98,7 @@ const Inventory = () => {
             price: "",
             stock: "",
             categoryId: "",
-        emoji: "",
+            emoji: "",
         })
     }
 
@@ -131,8 +127,7 @@ const Inventory = () => {
                         price: "",
                         stock: "",
                         categoryId: "",
-        emoji: "",
-                        //supplierId: "",
+                        emoji: "",
                     });
                 } else {
                     alert("Error updating product. Please try again");
@@ -168,8 +163,7 @@ const Inventory = () => {
                     price: "",
                     stock: "",
                     categoryId: "",
-        emoji: "",
-                    // supplierId: "",
+                    emoji: "",
                 })
             } else {
                 alert("Error adding product. Please try again.");
@@ -182,7 +176,7 @@ const Inventory = () => {
     const handleSearch = (e) => {
         setFilteredInventory(
             inventory.filter((inventory) =>
-            inventory.name.toLowerCase().includes(e.target.value.toLowerCase()))
+                inventory.name.toLowerCase().includes(e.target.value.toLowerCase()))
         )
     }
 

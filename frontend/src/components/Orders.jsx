@@ -34,7 +34,7 @@ const Orders = () => {
         };
         fetchOrders();
 
-        // Live updates: new customer orders appear without refreshing
+        // New customer orders appear without refreshing
         const socket = io(API, { auth: { token } });
         socket.on("order:new", (order) => setOrders((prev) => [order, ...prev]));
         socket.on("order:updated", (order) =>
@@ -42,7 +42,6 @@ const Orders = () => {
         );
 
         return () => socket.disconnect();
-        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     const changeStatus = async (id, status) => {

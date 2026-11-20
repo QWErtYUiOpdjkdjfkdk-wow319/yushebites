@@ -194,7 +194,6 @@ const Categories = () => {
                                     </tr>
                                 ) : (
                                     categories.map((category, index) => (
-                                        //Changed key mappings from .id to MongoDB's natural ._id syntax
                                         <tr key={index} className="hover:bg-gray-50">
                                             <td className="border border-gray-200 p-2 text-gray-600">{index + 1}</td>
                                             <td className="border border-gray-200 p-2 font-medium">{category.categoryName}</td>
