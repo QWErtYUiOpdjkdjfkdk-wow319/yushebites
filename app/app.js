@@ -146,7 +146,7 @@
 
     var next = (state.cart[id] || 0) + delta;
     if (next > p.stock) {
-      toast(p.stock === 0 ? p.name + " is sold out." : "Only " + p.stock + " of " + p.name + " left.");
+      toast(p.stock === 0 ? p.name + " is sold out." : "Cannot order more than " + p.stock + " of " + p.name);
       return;
     }
     if (next <= 0) {
