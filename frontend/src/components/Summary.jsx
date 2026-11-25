@@ -109,7 +109,7 @@ const Summary = () => {
             ))}
           </div>
         </div>
-        <Link to="admin-dashboard/sales" className="bg-purple-500 text-white p-4 rounded-lg shadow-md flex flex-col items-center justify-center hover:opacity-90 transition-opacity">
+        <Link to="/admin-dashboard/sales" className="bg-purple-500 text-white p-4 rounded-lg shadow-md flex flex-col items-center justify-center hover:opacity-90 transition-opacity">
           <p className="text-lg font-semibold">Revenue</p>
           <p className="text-2xl font-bold">
             ₱{Number(dashboardData.revenue).toFixed(2)}
