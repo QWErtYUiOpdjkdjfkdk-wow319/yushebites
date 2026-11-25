@@ -43,6 +43,10 @@ function App() {
             element={<Orders />}
           />
           <Route
+            path="sales"
+            element={<Sales />}
+          />
+          <Route
             path="logout"
             element={<Logout />}
           />

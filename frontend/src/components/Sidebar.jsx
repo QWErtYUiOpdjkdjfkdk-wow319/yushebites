@@ -1,6 +1,6 @@
 import React from 'react'
 import { NavLink } from 'react-router-dom'
-import { FaBox, FaHome, FaShoppingCart, FaSignOutAlt, FaTable} from "react-icons/fa"
+import { FaBox, FaHome, FaMoneyBill, FaShoppingCart, FaSignOutAlt, FaTable} from "react-icons/fa"
 
 const Sidebar = () => {
     const menuItems = [
@@ -8,6 +8,7 @@ const Sidebar = () => {
         { name: "Categories", path: "/admin-dashboard/categories", icon: <FaTable />, isParent: false },
         { name: "Inventory", path: "/admin-dashboard/inventory", icon: <FaBox />, isParent: false },
         { name: "Orders", path: "/admin-dashboard/orders", icon: <FaShoppingCart />, isParent: false },
+        { name: "Sales", path: "/admin-dashboard/sales", icon: <FaMoneyBill />, isParent: false },
         { name: "Logout", path: "/logout", icon: <FaSignOutAlt />, isParent: false }
     ]
 
