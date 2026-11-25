@@ -9,7 +9,7 @@ const Sidebar = () => {
         { name: "Inventory", path: "/admin-dashboard/inventory", icon: <FaBox />, isParent: false },
         { name: "Orders", path: "/admin-dashboard/orders", icon: <FaShoppingCart />, isParent: false },
         { name: "Sales", path: "/admin-dashboard/sales", icon: <FaMoneyBill />, isParent: false },
-        { name: "Logout", path: "/logout", icon: <FaSignOutAlt />, isParent: false }
+        { name: "Logout", path: "/login", icon: <FaSignOutAlt />, isParent: false }
     ]
 
     return (

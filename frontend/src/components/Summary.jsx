@@ -1,6 +1,7 @@
 import axios from "axios";
 import { API_URL } from "../config";
 import React, { useEffect, useState } from "react";
+import { Link } from 'react-router-dom';
 
 const Summary = () => {
   const getTodayDate = () => {
@@ -63,23 +64,18 @@ const Summary = () => {
     <div className="p-5">
       <h2 className="text-3xl font-bold">Dashboard</h2>
 
-      {/* Top KPI Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 my-6">
-        {/* Static Card: Total Products */}
         <div className="bg-blue-500 text-white p-4 rounded-lg shadow-md flex flex-col items-center justify-center">
           <p className="text-lg font-semibold">Total Products</p>
           <p className="text-2xl font-bold">{dashboardData.totalProducts}</p>
         </div>
 
-        {/* Static Card: Total Stock */}
         <div className="bg-green-500 text-white p-4 rounded-lg shadow-md flex flex-col items-center justify-center">
           <p className="text-lg font-semibold">Total Stock</p>
           <p className="text-2xl font-bold">{dashboardData.totalStock}</p>
         </div>
 
-        {/* Editable / Interactive Card: Orders */}
         <div className="bg-yellow-500 text-white p-4 rounded-lg shadow-md flex flex-col justify-between">
-          {/* Top Bar: Editable Indicator Badge + Calendar Picker */}
           <div className="flex items-center justify-between gap-2 w-full mb-2">
 
             <input
@@ -92,41 +88,37 @@ const Summary = () => {
             />
           </div>
 
-          {/* Center Metric */}
           <div className="text-center my-1">
             <p className="text-lg font-semibold">{getCardTitle()}</p>
             <p className="text-2xl font-bold">{dashboardData.ordersToday}</p>
           </div>
 
-          {/* Bottom Timeframe Toggle Buttons */}
           <div className="grid grid-cols-3 gap-1 bg-black/15 p-1 rounded-md mt-2">
             {["daily", "weekly", "monthly"].map((period) => (
               <button
                 key={period}
                 type="button"
                 onClick={() => setTimeframe(period)}
-                className={`text-xs font-semibold py-1 rounded capitalize transition cursor-pointer ${
-                  timeframe === period
+                className={`text-xs font-semibold py-1 rounded capitalize transition cursor-pointer ${timeframe === period
                     ? "bg-white text-yellow-700 shadow-sm"
                     : "text-white hover:bg-white/20"
-                }`}
+                  }`}
               >
                 {period}
               </button>
             ))}
           </div>
         </div>
-
-        {/* Static Card: Revenue */}
-        <div className="bg-purple-500 text-white p-4 rounded-lg shadow-md flex flex-col items-center justify-center">
-          <p className="text-lg font-semibold">Revenue</p>
-          <p className="text-2xl font-bold">
-            ₱{Number(dashboardData.revenue).toFixed(2)}
-          </p>
-        </div>
+        <Link to="/sales" className="block hover:opacity-90 transition-opacity">
+          <div className="bg-purple-500 text-white p-4 rounded-lg shadow-md flex flex-col items-center justify-center">
+            <p className="text-lg font-semibold">Revenue</p>
+            <p className="text-2xl font-bold">
+              ₱{Number(dashboardData.revenue).toFixed(2)}
+            </p>
+          </div>
+        </Link>
       </div>
 
-      {/* Bottom 3 Summary Cards (Unchanged Layout) */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div className="bg-white p-4 rounded-lg shadow-md">
           <h3 className="text-xl font-semibold text-gray-800 mb-3">
