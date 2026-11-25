@@ -78,21 +78,9 @@ const Summary = () => {
         </div>
 
         {/* Editable / Interactive Card: Orders */}
-        <div className="bg-yellow-500 text-white p-4 rounded-lg shadow-md flex flex-col justify-between border-2 border-dashed border-white/80 ring-2 ring-yellow-300/60 hover:ring-yellow-400 transition">
+        <div className="bg-yellow-500 text-white p-4 rounded-lg shadow-md flex flex-col justify-between">
           {/* Top Bar: Editable Indicator Badge + Calendar Picker */}
           <div className="flex items-center justify-between gap-2 w-full mb-2">
-            <span className="inline-flex items-center gap-1 text-[11px] font-medium uppercase tracking-wider bg-black/20 px-2 py-0.5 rounded-full">
-              {/* Pencil / Edit Icon */}
-              <svg
-                xmlns="http://w3.org"
-                className="h-3 w-3"
-                viewBox="0 0 20 20"
-                fill="currentColor"
-              >
-                <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
-              </svg>
-              Filterable
-            </span>
 
             <input
               type="date"
