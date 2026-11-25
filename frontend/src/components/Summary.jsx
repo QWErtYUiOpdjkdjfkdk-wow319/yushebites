@@ -100,8 +100,8 @@ const Summary = () => {
                 type="button"
                 onClick={() => setTimeframe(period)}
                 className={`text-xs font-semibold py-1 rounded capitalize transition cursor-pointer ${timeframe === period
-                    ? "bg-white text-yellow-700 shadow-sm"
-                    : "text-white hover:bg-white/20"
+                  ? "bg-white text-yellow-700 shadow-sm"
+                  : "text-white hover:bg-white/20"
                   }`}
               >
                 {period}
@@ -109,13 +109,11 @@ const Summary = () => {
             ))}
           </div>
         </div>
-        <Link to="/sales" className="block hover:opacity-90 transition-opacity">
-          <div className="bg-purple-500 text-white p-4 rounded-lg shadow-md flex flex-col items-center justify-center">
-            <p className="text-lg font-semibold">Revenue</p>
-            <p className="text-2xl font-bold">
-              ₱{Number(dashboardData.revenue).toFixed(2)}
-            </p>
-          </div>
+        <Link to="admin-dashboard/sales" className="bg-purple-500 text-white p-4 rounded-lg shadow-md flex flex-col items-center justify-center hover:opacity-90 transition-opacity">
+          <p className="text-lg font-semibold">Revenue</p>
+          <p className="text-2xl font-bold">
+            ₱{Number(dashboardData.revenue).toFixed(2)}
+          </p>
         </Link>
       </div>
 
