@@ -1,14 +1,15 @@
-import './App.css'
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
-import Root from './components/Root'
-import Login from './pages/Login'
-import ProtectedRoutes from './utils/ProtectedRoutes'
+import './App.css';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import Root from './components/Root';
+import Login from './pages/Login';
+import ProtectedRoutes from './utils/ProtectedRoutes';
 import Dashboard from './pages/Dashboard';
 import Categories from './components/Categories';
-import Logout from './components/Logout'
+import Logout from './components/Logout';
 import Orders from './components/Orders';
 import Summary from './components/Summary';
 import Inventory from './components/Inventory';
+import Sales from './components/Sales';
 
 
 function App() {
