@@ -13,7 +13,7 @@ const Sidebar = () => {
     ]
 
     return (
-        <div className='flex flex-col h-screen p-3 bg-black text-white w-16 md:w-64 transition-all duration-300'>
+        <div className='flex flex-col h-screen sticky top-0 p-3 bg-black text-white w-16 md:w-64 transition-all duration-300'>
             <div className='mb-6 p-2 font-bold border-b border-gray-800 text-center md:text-left'>
                 <span className='hidden md:block text-xl font-bold'>Inventory MS</span>
                 <span className='md:hidden text-xl font-bold'>IMS</span>
