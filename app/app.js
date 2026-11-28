@@ -36,6 +36,19 @@
     return null;
   }
 
+  function photoUrl(p) {
+    var slug = String(p.name).toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
+    return slug ? "images/" + slug + ".jpg" : "";
+  }
+
+  document.addEventListener("error", function (e) {
+    var el = e.target;
+    if (el && el.classList && el.classList.contains("product__photo")) {
+      el.style.display = "none";
+      if (el.nextElementSibling) el.nextElementSibling.style.display = "block";
+    }
+  }, true);
+
   function cartItems() {
     return Object.keys(state.cart).map(function (key) {
       return { product: findProduct(key), qty: state.cart[key] };
@@ -216,7 +229,10 @@
       }
 
       return '<article class="product' + (soldOut ? " product--soldout" : "") + '" title="' + esc(p.description) + '">' +
-        '<div class="product__emoji">' + esc(p.emoji || DEFAULT_EMOJI) + '</div>' +
+        (photoUrl(p)
+          ? '<img class="product__photo" src="' + esc(photoUrl(p)) + '" alt="' + esc(p.name) + '" loading="lazy">' +
+            '<div class="product__emoji" style="display:none">' + esc(p.emoji || DEFAULT_EMOJI) + '</div>'
+          : '<div class="product__emoji">' + esc(p.emoji || DEFAULT_EMOJI) + '</div>') +
         '<div class="product__name">' + esc(p.name) + '</div>' +
         '<div class="product__price">' + money(p.price) + '</div>' +
         action +

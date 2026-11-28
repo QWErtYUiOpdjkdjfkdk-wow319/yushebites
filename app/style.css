@@ -291,3 +291,14 @@ body {
 
 .add-btn:disabled { background: #d9d3ca; color: #fff; cursor: not-allowed; }
 .stepper button:disabled { opacity: 0.4; cursor: not-allowed; }
+
+
+.product__photo {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  object-fit: cover;
+  border-radius: 12px;
+  margin-bottom: 8px;
+  background: #faf7f2;
+}
+.product--soldout .product__photo { filter: grayscale(1); }
