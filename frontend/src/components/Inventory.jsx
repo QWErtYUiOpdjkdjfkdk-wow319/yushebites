@@ -8,6 +8,7 @@ const Inventory = () => {
     const [openModal, setOpenModal] = useState(false);
     const [scanOpen, setScanOpen] = useState(false);
     const [qrProduct, setQrProduct] = useState(null);
+    const [sortOrder, setSortOrder] = useState("none");
     const [editInventory, setEditInventory] = useState(null);
     const [categories, setCategories] = useState([]);
     const [inventory, setInventory] = useState([]);
@@ -184,16 +185,47 @@ const Inventory = () => {
         )
     }
 
+    
+    const cycleSort = () => {
+        setSortOrder((current) =>
+            current === "none" ? "asc" : current === "asc" ? "desc" : "none"
+        );
+    };
+
+    
+    const sortedInventory = [...filteredInventory];
+    if (sortOrder !== "none") {
+        const direction = sortOrder === "asc" ? 1 : -1;
+        sortedInventory.sort((a, b) => {
+            const catA = a.categoryId?.categoryName;
+            const catB = b.categoryId?.categoryName;
+            if (!catA && !catB) return a.name.localeCompare(b.name);
+            if (!catA) return 1;
+            if (!catB) return -1;
+            return direction * catA.localeCompare(catB) || a.name.localeCompare(b.name);
+        });
+    }
+
+    const sortLabel = sortOrder === "asc" ? "Category: A to Z" : sortOrder === "desc" ? "Category: Z to A" : "Sort by category";
+
     return (
         <div className="w-full h-full flex flex-col gap-4 p-4">
             <h1 className="text-2xl font-bold">Inventory Management</h1>
             <div className="flex justify-between items-center">
-                <input
-                    type="text"
-                    placeholder="Search"
-                    className="border p-1 bg-white rounded px-4"
-                    onChange={handleSearch}
-                />
+                <div className="flex gap-2">
+                    <input
+                        type="text"
+                        placeholder="Search"
+                        className="border p-1 bg-white rounded px-4"
+                        onChange={handleSearch}
+                    />
+                    <button
+                        className={`px-4 py-1.5 rounded cursor-pointer border ${sortOrder === "none" ? "bg-white text-gray-700" : "bg-gray-700 text-white"}`}
+                        onClick={cycleSort}
+                    >
+                        {sortLabel} {sortOrder === "asc" ? "↑" : sortOrder === "desc" ? "↓" : ""}
+                    </button>
+                </div>
                 <div className="flex gap-2">
                     <button
                         className="px-4 py-1.5 bg-green-600 text-white rounded cursor-pointer"
@@ -223,7 +255,7 @@ const Inventory = () => {
                         </tr>
                     </thead>
                     <tbody>
-                        {filteredInventory && filteredInventory.map((inventory, index) => (
+                        {sortedInventory.map((inventory, index) => (
                             <tr key={inventory._id}>
                                 <td className="border border-gray-300 p-2">{index + 1}</td>
                                 <td className="border border-gray-300 p-2">{inventory.emoji} {inventory.name}</td>
