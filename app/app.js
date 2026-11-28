@@ -41,11 +41,25 @@
     return slug ? "images/" + slug + ".jpg" : "";
   }
 
+    function slugify(text) {
+    return String(text).toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
+  }
+
+  // URL of a category's photo, e.g. "Soda Floats" -> images/categories/soda-floats.jpg
+  function categoryPhotoUrl(c) {
+    var slug = slugify(c.name);
+    return slug ? "images/categories/" + slug + ".jpg" : "";
+  }
+
+  // If a photo file doesn't exist, hide it and show the emoji instead
   document.addEventListener("error", function (e) {
     var el = e.target;
-    if (el && el.classList && el.classList.contains("product__photo")) {
+    if (el && el.classList &&
+        (el.classList.contains("product__photo") ||
+         el.classList.contains("cart-item__photo") ||
+         el.classList.contains("cat-btn__photo"))) {
       el.style.display = "none";
-      if (el.nextElementSibling) el.nextElementSibling.style.display = "block";
+      if (el.nextElementSibling) el.nextElementSibling.style.display = "";
     }
   }, true);
 
@@ -179,7 +193,10 @@
     $("categoryList").innerHTML = list.map(function (c) {
       var active = c.id === state.category ? " is-active" : "";
       return '<button type="button" class="cat-btn' + active + '" data-category="' + esc(c.id) + '">' +
-        '<span class="cat-btn__icon">' + esc(c.icon) + '</span>' +
+        (categoryPhotoUrl(c)
+          ? '<img class="cat-btn__photo" src="' + esc(categoryPhotoUrl(c)) + '" alt="">' +
+            '<span class="cat-btn__icon" style="display:none">' + esc(c.icon) + '</span>'
+          : '<span class="cat-btn__icon">' + esc(c.icon) + '</span>') +
         '<span>' + esc(c.name) + '</span></button>';
     }).join("");
 
@@ -256,7 +273,10 @@
     $("cartList").innerHTML = items.map(function (it) {
       var p = it.product;
       return '<li class="cart-item">' +
-        '<span class="cart-item__emoji">' + esc(p.emoji || DEFAULT_EMOJI) + '</span>' +
+        (photoUrl(p)
+          ? '<img class="cart-item__photo" src="' + esc(photoUrl(p)) + '" alt="">' +
+            '<span class="cart-item__emoji" style="display:none">' + esc(p.emoji || DEFAULT_EMOJI) + '</span>'
+          : '<span class="cart-item__emoji">' + esc(p.emoji || DEFAULT_EMOJI) + '</span>') +
         '<div class="cart-item__info">' +
           '<div class="cart-item__name">' + esc(p.name) + '</div>' +
           '<div class="cart-item__price">' + money(p.price) + ' each</div>' +
